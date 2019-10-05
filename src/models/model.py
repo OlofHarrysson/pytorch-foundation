@@ -26,10 +26,11 @@ class MyModel(nn.Module):
   def calc_loss(self, outputs, labels, accuracy=False):
     labels = labels.to(self.device)
 
-    _, preds = torch.max(outputs, 1)
-    accuracy = torch.sum(preds == labels, dtype=float) / len(preds)
-
-    return self.loss_fn(outputs, labels), accuracy
+    if accuracy:
+      _, preds = torch.max(outputs, 1)
+      accuracy = torch.sum(preds == labels, dtype=float) / len(preds)
+      return self.loss_fn(outputs, labels), accuracy
+    return self.loss_fn(outputs, labels)
 
   def save(self, path):
     save_dir = Path(path).parent

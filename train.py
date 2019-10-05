@@ -42,11 +42,10 @@ def train(config):
       inputs, labels = data
       outputs = model(inputs)
       loss, accuracy = model.calc_loss(outputs, labels, accuracy=True)
+      print(accuracy)
       loss.backward()
       optimizer.step()
       optimizer.zero_grad()
-
-      print(accuracy)
 
       # Decrease learning rate
       lr_scheduler.step()

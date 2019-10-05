@@ -24,11 +24,9 @@ class ProgressbarWrapper():
     )
 
     self.bar = pbar.ProgressBar(widgets=[
-        pbar.Percentage(), ' ',
-        self.text, ' ',
-        pbar.Bar(), ' ',
-        pbar.Timer(), ' ',
-        pbar.AdaptiveETA(), ' ',
+        self.text, '    ',
+        pbar.Timer(), '    ',
+        pbar.AdaptiveETA(), '',
     ], redirect_stdout=True)
 
     self.bar.start()

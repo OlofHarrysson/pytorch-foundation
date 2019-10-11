@@ -2,9 +2,10 @@ import pyjokes, random
 from datetime import datetime as dtime
 from collections import OrderedDict
 import pprint
+from abc import ABC
 
 
-class DefaultConfig():
+class DefaultConfig(ABC):
   def __init__(self, config_str):
     # ~~~~~~~~~~~~~~ General Parameters ~~~~~~~~~~~~~~
     # The config name

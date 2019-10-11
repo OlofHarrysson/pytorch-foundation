@@ -5,7 +5,6 @@ environment file
 
 dataclasses in config?
 
-eval for the config instead of if else
 
 modular config sub-modules that can be used in config?
 transforms = config.small_transforms()

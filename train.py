@@ -8,14 +8,20 @@ from src.logger import Logger
 from src.utils.utils import ProgressbarWrapper as Progressbar
 from src.validator import Validator
 
+
 def parse_args():
   p = argparse.ArgumentParser()
 
-  configs = ['cookie']
-  p.add_argument('--config', type=str, default='cookie', choices=configs, help='What config file to choose')
+  configs = ['Cookie']
+  p.add_argument('--config',
+                 type=str,
+                 default='Cookie',
+                 choices=configs,
+                 help='What config file to choose')
 
   args, unknown = p.parse_known_args()
   return args.config
+
 
 def train(config):
   train_loader, val_loader = setup_dataloaders(config)
@@ -56,14 +62,18 @@ def setup_dataloaders(config):
   val_loader = get_valloader(config)
   return train_loader, val_loader
 
+
 def setup_train(config):
   model = get_model(config)
   optimizer = torch.optim.Adam(model.parameters(), lr=config.start_lr)
-  lr_scheduler = CosineAnnealingLR(optimizer, T_max=config.optim_steps, eta_min=config.end_lr)
+  lr_scheduler = CosineAnnealingLR(optimizer,
+                                   T_max=config.optim_steps,
+                                   eta_min=config.end_lr)
   logger = Logger(config)
   validator = Validator(config)
 
   return model, optimizer, lr_scheduler, logger, validator
+
 
 if __name__ == '__main__':
   config_str = parse_args()

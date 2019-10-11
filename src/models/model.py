@@ -2,8 +2,12 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 
+
 def get_model(config):
-  return MyModel(config)
+  model = MyModel(config)
+  model = model.to(model.device)
+  return model
+
 
 class MyModel(nn.Module):
   def __init__(self, config):

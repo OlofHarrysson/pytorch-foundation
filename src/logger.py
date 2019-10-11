@@ -1,23 +1,32 @@
 import visdom
-import pandas as pd
 
-def clear_envs(viz):
-  [viz.close(env=env) for env in viz.get_env_list()] # Kills wind
-  # [viz.delete_env(env) for env in viz.get_env_list()] # Kills envs
+
+def clear_envs(vis):
+  [vis.close(env=env) for env in vis.get_env_list()]  # Kills wind
+  # [vis.delete_env(env) for env in vis.get_env_list()] # Kills envs
+
+
+def log_if_active(func):
+  ''' Decorator which only calls logging function if logger is active '''
+  def wrapper(self, *args, **kwargs):
+    if self.log_data:
+      func(self, *args, **kwargs)
+
+  return wrapper
+
 
 class Logger():
   def __init__(self, config):
     self.config = config
-    self.viz = visdom.Visdom(port='6006')
-    clear_envs(self.viz)
+    self.log_data = config.log_data
+    if self.log_data:
+      try:
+        self.vis = visdom.Visdom()
+        clear_envs(self.vis)
+      except Exception as e:
+        err_msg = "Couldn't connect to Visdom. Make sure to have a Visdom server running or turn of logging in the config"
+        raise ConnectionError(err_msg) from e
 
-
-class EMAverage(object):
-  ''' Smooths the curve with Exponential Moving Average '''
-  def __init__(self, time_steps):
-    self.vals = deque([], time_steps)
-
-  def update(self, val):
-    self.vals.append(val)
-    df = pd.Series(self.vals)
-    return df.ewm(com=0.5).mean().mean()
+  @log_if_active
+  def log_image(self, image):
+    self.vis.image(image)

@@ -1,31 +1,10 @@
 import progressbar as pbar
-import random, torch
-import numpy as np
-from collections import deque
-from git import Repo
+from pathlib import Path
 
 
-def seed_program(seed=0):
-  ''' Seed for reproducability '''
-  random.seed(seed)
-  np.random.seed(seed)
-  torch.manual_seed(seed)
-  torch.cuda.manual_seed_all(seed)
-  # torch.backends.cudnn.deterministic = True # You can add this
-
-
-def save_experiment_info(experiment_dir):
-  print(experiment_dir)
-  git_dir = Repo('.', search_parent_directories=True)
-  print(git_dir)
-  print(git_dir.working_tree_dir)
-  print(git_dir.index)
-  t = git_dir.head.commit.tree
-  a = git_dir.git.diff(t)
-  print(a)
-  print(a == None)
-  print(a == '')
-  qe
+def get_project_root():
+  ''' Returns project root folder '''
+  return Path(__file__).parent.parent.parent
 
 
 class ProgressbarWrapper():

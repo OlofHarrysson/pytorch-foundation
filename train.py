@@ -1,26 +1,13 @@
-import torch, argparse, math
+import torch, math
 from torch.optim.lr_scheduler import CosineAnnealingLR
+
 from src.data.data import get_trainloader, get_valloader
 from src.models.model import get_model
-from src.config.config_util import choose_config
-from src.utils.utils import seed_program, save_experiment_info
 from src.logger import Logger
-from src.utils.utils import ProgressbarWrapper as Progressbar
 from src.validator import Validator
 
-
-def parse_args():
-  p = argparse.ArgumentParser()
-
-  configs = ['Cookie']
-  p.add_argument('--config',
-                 type=str,
-                 default='Cookie',
-                 choices=configs,
-                 help='What config file to choose')
-
-  args, unknown = p.parse_known_args()
-  return args.config
+from src.utils.meta_utils import ProgressbarWrapper as Progressbar
+import src.utils.setup_utils as setup_utils
 
 
 def train(config):
@@ -76,11 +63,5 @@ def setup_train(config):
 
 
 if __name__ == '__main__':
-  config_str = parse_args()
-  config = choose_config(config_str)
-  print(config)
-  print('\n{}\n'.format(config.save_comment))
-  seed_program(config.seed)
-  if config.save_experiment:
-    save_experiment_info(config.start_time)
+  config = setup_utils.setup()
   train(config)

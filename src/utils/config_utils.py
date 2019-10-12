@@ -1,7 +1,7 @@
 import sys
 from io import StringIO
 import fire
-from .base_config import *
+from ..config.base_config import *
 
 
 def choose_config(config_str):

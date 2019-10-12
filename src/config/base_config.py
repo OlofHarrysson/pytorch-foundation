@@ -7,7 +7,7 @@ from dataclasses import dataclass, FrozenInstanceError
 
 
 @dataclass
-class DefaultConfig(ABC):
+class MasterConfig(ABC):
   # ~~~~~~~~~~~~~~ General Parameters ~~~~~~~~~~~~~~
   # The config name
   config: str
@@ -64,10 +64,10 @@ class DefaultConfig(ABC):
       err_msg = f"Cannot assign to field '{name}'. Config object is frozen. Change 'freeze_config' to False if you want a mutable config object"
       raise FrozenInstanceError(err_msg)
 
-    setattr(DefaultConfig, '__setattr__', handler)
+    setattr(MasterConfig, '__setattr__', handler)
 
 
-class Cookie(DefaultConfig):
+class Cookie(MasterConfig):
   def __init__(self, config_str):
     super().__init__(config_str)
     ''' Change default parameters here. Like this

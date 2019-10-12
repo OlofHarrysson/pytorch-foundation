@@ -1,16 +1,20 @@
 import sys
 from io import StringIO
 import fire
-from ..config.base_config import *
+from ..config.base_config import MasterConfig
+from ..config import base_config
+import inspect
 
 
 def choose_config(config_str):
   # Create config object
+  available_configs = get_available_configs()
   try:
-    config_obj = eval(config_str)(config_str)
-  except NameError as e:
-    err_msg = f"Config object '{config_str}' wasn't found. Feel free to create it as a new config class"
-    raise NameError(err_msg) from e
+    config_class = available_configs[config_str]
+    config_obj = config_class(config_str)
+  except KeyError as e:
+    err_msg = f"Config class '{config_str}' wasn't found. Feel free to create it as a new config class or use one of the existing ones -> {set(available_configs)}"
+    raise KeyError(err_msg) from e
 
   # Overwrite parameters via optional input flags
   config_obj = overwrite(config_obj)
@@ -19,6 +23,15 @@ def choose_config(config_str):
   if config_obj.freeze_config:
     config_obj.freeze()
   return config_obj
+
+
+def get_available_configs():
+  available_configs = {}
+  for name, obj in inspect.getmembers(base_config):
+    if inspect.isclass(obj) and issubclass(obj, MasterConfig):
+      available_configs[name] = obj
+  available_configs.pop('MasterConfig')
+  return available_configs
 
 
 def overwrite(config_obj):

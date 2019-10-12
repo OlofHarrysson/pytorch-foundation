@@ -9,7 +9,3 @@ transforms = config.small_transforms()
 for k,v in vars(transforms):
   setattr(k,v) ish
 
-
-Print all available config classes if wrong was chosen.
-
-Use pathlib to get git_dir. Create a saved/output dir in git dir.

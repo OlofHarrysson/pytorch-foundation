@@ -9,7 +9,7 @@ def choose_config(config_str):
   try:
     config_obj = eval(config_str)(config_str)
   except NameError as e:
-    err_msg = f"Config object '{config_str}' wasn't found. You can add more config classes"
+    err_msg = f"Config object '{config_str}' wasn't found. Feel free to create it as a new config class"
     raise NameError(err_msg) from e
 
   # Overwrite parameters via optional input flags
@@ -22,7 +22,9 @@ def choose_config(config_str):
 
 
 def overwrite(config_obj):
-  ''' Overwrites parameters with input flags. Function is needed for the convenience of specifying parameters via a combination of the config classes and input flags. '''
+  ''' Overwrites parameters with input flags. Function is needed for the
+  convenience of specifying parameters via a combination of the config classes
+  and input flags. '''
   class NullIO(StringIO):
     def write(self, txt):
       pass

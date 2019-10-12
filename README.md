@@ -3,8 +3,6 @@ A barebone project structure for pytorch projects that can be built upon. To avo
 
 environment file
 
-dataclasses in config?
-
 
 modular config sub-modules that can be used in config?
 transforms = config.small_transforms()

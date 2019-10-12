@@ -21,6 +21,9 @@ class DefaultConfig(ABC):
   # Start time to keep track of when the experiment was run
   start_time: str = dtime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
+  # Saves config & git diffs
+  save_experiment: bool = True
+
   # Freezes the config after setup, turning it immutable
   freeze_config: bool = True
 
@@ -46,7 +49,7 @@ class DefaultConfig(ABC):
   # For how many steps to train
   optim_steps: int = 10000
 
-  # How often to validate
+  # How many optimization steps before validation
   validation_freq: int = 100
 
   def get_parameters(self):
@@ -68,7 +71,7 @@ class Cookie(DefaultConfig):
   def __init__(self, config_str):
     super().__init__(config_str)
     ''' Change default parameters here. Like this
-    self.seed = 666          ____
+    self.seed = 666            ____
       ________________________/ O  \___/  <--- Python <3
      <_#_#_#_#_#_#_#_#_#_#_#_#_____/   \
     '''

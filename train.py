@@ -3,7 +3,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from src.data.data import get_trainloader, get_valloader
 from src.models.model import get_model
 from src.config.config_util import choose_config
-from src.utils.utils import seed_program
+from src.utils.utils import seed_program, save_experiment_info
 from src.logger import Logger
 from src.utils.utils import ProgressbarWrapper as Progressbar
 from src.validator import Validator
@@ -81,4 +81,6 @@ if __name__ == '__main__':
   print(config)
   print('\n{}\n'.format(config.save_comment))
   seed_program(config.seed)
+  if config.save_experiment:
+    save_experiment_info(config.start_time)
   train(config)

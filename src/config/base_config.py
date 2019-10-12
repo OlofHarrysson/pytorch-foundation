@@ -3,8 +3,10 @@ from datetime import datetime as dtime
 from collections import OrderedDict
 import pprint
 from abc import ABC
+from dataclasses import dataclass, FrozenInstanceError
 
 
+@dataclass
 class DefaultConfig(ABC):
   def __init__(self, config_str):
     # ~~~~~~~~~~~~~~ General Parameters ~~~~~~~~~~~~~~
@@ -20,8 +22,10 @@ class DefaultConfig(ABC):
     # Start time to keep track of when the experiment was run
     self.start_time = dtime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
+    # Freezes the config after setup, turning it immutable
+    self.freeze_config = True
+
     # Decides if logger should be active
-    # self.log_data = True
     self.log_data = False
 
     # Use GPU. Set to False to only use CPU
@@ -51,6 +55,14 @@ class DefaultConfig(ABC):
 
   def __str__(self):
     return pprint.pformat(dict(self.get_parameters()))
+
+  def freeze(self):
+    ''' Freezes object, making it immutable '''
+    def handler(self, name, value):
+      err_msg = f"Cannot assign to field '{name}'. Config object is frozen. Change 'freeze_config' to False if you want a mutable config object"
+      raise FrozenInstanceError(err_msg)
+
+    setattr(DefaultConfig, '__setattr__', handler)
 
 
 class Cookie(DefaultConfig):

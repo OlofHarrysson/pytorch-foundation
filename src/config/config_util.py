@@ -5,14 +5,20 @@ from .base_config import *
 
 
 def choose_config(config_str):
+  # Create config object
   try:
-    config_obj = eval(config_str)(config_str)  # Create config object
+    config_obj = eval(config_str)(config_str)
   except NameError as e:
     err_msg = f"Config object '{config_str}' wasn't found. You can add more config classes"
     raise NameError(err_msg) from e
 
   # Overwrite parameters via optional input flags
-  return overwrite(config_obj)
+  config_obj = overwrite(config_obj)
+
+  # Freezes config
+  if config_obj.freeze_config:
+    config_obj.freeze()
+  return config_obj
 
 
 def overwrite(config_obj):

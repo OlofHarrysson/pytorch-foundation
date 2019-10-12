@@ -8,47 +8,46 @@ from dataclasses import dataclass, FrozenInstanceError
 
 @dataclass
 class DefaultConfig(ABC):
-  def __init__(self, config_str):
-    # ~~~~~~~~~~~~~~ General Parameters ~~~~~~~~~~~~~~
-    # The config name
-    self.config = config_str
+  # ~~~~~~~~~~~~~~ General Parameters ~~~~~~~~~~~~~~
+  # The config name
+  config: str
 
-    # An optional comment to differentiate this run from others
-    self.save_comment = pyjokes.get_joke()
+  # An optional comment to differentiate this run from others
+  save_comment: str = pyjokes.get_joke()
 
-    # Seed to create reproducable training results
-    self.seed = random.randint(0, 2**32 - 1)
+  # Seed to create reproducable training results
+  seed: int = random.randint(0, 2**32 - 1)
 
-    # Start time to keep track of when the experiment was run
-    self.start_time = dtime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+  # Start time to keep track of when the experiment was run
+  start_time: str = dtime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Freezes the config after setup, turning it immutable
-    self.freeze_config = True
+  # Freezes the config after setup, turning it immutable
+  freeze_config: bool = True
 
-    # Decides if logger should be active
-    self.log_data = False
+  # Decides if logger should be active
+  log_data: bool = False
 
-    # Use GPU. Set to False to only use CPU
-    self.use_gpu = True
+  # Use GPU. Set to False to only use CPU
+  use_gpu: bool = True
 
-    # Threads to use in data loading
-    self.num_workers = 0
+  # Threads to use in data loading
+  num_workers: int = 0
 
-    # Batch size going into the network
-    self.batch_size = 32
+  # Batch size going into the network
+  batch_size: int = 32
 
-    # Using a pretrained network
-    self.pretrained = False
+  # Using a pretrained network
+  pretrained: bool = False
 
-    # Start and end learning rate for the scheduler
-    self.start_lr = 1e-3
-    self.end_lr = 1e-4
+  # Start and end learning rate for the scheduler
+  start_lr: float = 1e-3
+  end_lr: float = 1e-4
 
-    # For how many steps to train
-    self.optim_steps = 10000
+  # For how many steps to train
+  optim_steps: int = 10000
 
-    # How often to validate
-    self.validation_freq = 100
+  # How often to validate
+  validation_freq: int = 100
 
   def get_parameters(self):
     return OrderedDict(sorted(vars(self).items()))

@@ -63,5 +63,5 @@ def setup_train(config):
 
 
 if __name__ == '__main__':
-  config = setup_utils.setup()
+  config = setup_utils.setup(default_config='Cookie')
   train(config)

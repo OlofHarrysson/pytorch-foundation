@@ -10,8 +10,8 @@ from .config_utils import choose_config
 from .meta_utils import get_project_root, get_save_dir
 
 
-def setup():
-  config_str = parse_args()
+def setup(default_config):
+  config_str = parse_args(default_config)
   config = choose_config(config_str)
   print(config)
   print('\n{}\n'.format(config.save_comment))
@@ -22,12 +22,12 @@ def setup():
   return config
 
 
-def parse_args():
+def parse_args(default_config):
   p = argparse.ArgumentParser()
 
   p.add_argument('--config',
                  type=str,
-                 default='Cookie',
+                 default=default_config,
                  help='What config class to choose')
 
   args, unknown = p.parse_known_args()

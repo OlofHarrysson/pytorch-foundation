@@ -21,7 +21,10 @@ def save_experiment_info(experiment_dir):
   print(git_dir.working_tree_dir)
   print(git_dir.index)
   t = git_dir.head.commit.tree
-  print(git_dir.git.diff(t))
+  a = git_dir.git.diff(t)
+  print(a)
+  print(a == None)
+  print(a == '')
   qe
 
 

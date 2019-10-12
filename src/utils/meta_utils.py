@@ -7,6 +7,12 @@ def get_project_root():
   return Path(__file__).parent.parent.parent
 
 
+def get_save_dir(config):
+  ''' Returns directory where experiment will be saved '''
+  project_dir = get_project_root()
+  return project_dir / 'saved' / 'experiments' / config.start_time
+
+
 class ProgressbarWrapper():
   def __init__(self, n_epochs, n_batches):
     self.text = pbar.FormatCustomText(

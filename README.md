@@ -9,3 +9,8 @@ transforms = config.small_transforms()
 for k,v in vars(transforms):
   setattr(k,v) ish
 
+If we make more than one config files, we can check all \*.py files and inspect if class matching config_str exists to import all available configs
+
+assert that get_projectdir warns on folder structure change.
+
+

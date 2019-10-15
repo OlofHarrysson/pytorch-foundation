@@ -10,7 +10,7 @@ def log_if_active(func):
   ''' Decorator which only calls logging function if logger is active '''
   def wrapper(self, *args, **kwargs):
     if self.log_data:
-      func(self, *args, **kwargs)
+      return func(self, *args, **kwargs)
 
   return wrapper
 

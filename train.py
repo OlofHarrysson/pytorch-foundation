@@ -7,10 +7,12 @@ from src.logger import Logger
 from src.validator import Validator
 
 from src.utils.meta_utils import ProgressbarWrapper as Progressbar
+from src.utils.meta_utils import speed_up_cuda
 import src.utils.setup_utils as setup_utils
 
 
 def train(config):
+  speed_up_cuda()
   train_loader, val_loader = setup_dataloaders(config)
   model, optimizer, lr_scheduler, logger, validator = setup_train(config)
 

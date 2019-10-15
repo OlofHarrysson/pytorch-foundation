@@ -1,13 +1,10 @@
 import argparse
-import random
-import numpy as np
-import torch
 import json
 from git import Repo
 from git.exc import InvalidGitRepositoryError
 
 from .config_utils import choose_config
-from .meta_utils import get_project_root, get_save_dir
+from .meta_utils import get_project_root, get_save_dir, seed_program
 
 
 def setup(default_config):
@@ -32,15 +29,6 @@ def parse_args(default_config):
 
   args, unknown = p.parse_known_args()
   return args.config
-
-
-def seed_program(seed=0):
-  ''' Seed for reproducability '''
-  random.seed(seed)
-  np.random.seed(seed)
-  torch.manual_seed(seed)
-  torch.cuda.manual_seed_all(seed)
-  # torch.backends.cudnn.deterministic = True # You can add this
 
 
 def save_experiment_info(config):

@@ -12,17 +12,17 @@ class MasterConfig(ABC):
   # The config name
   config: str
 
+  # Saves config & git diffs
+  save_experiment: bool = False
+
   # An optional comment to differentiate this run from others
   save_comment: str = pyjokes.get_joke()
-
-  # Seed to create reproducable training results
-  seed: int = random.randint(0, 2**32 - 1)
 
   # Start time to keep track of when the experiment was run
   start_time: str = dtime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-  # Saves config & git diffs
-  save_experiment: bool = True
+  # Seed to create reproducable training results
+  seed: int = random.randint(0, 2**32 - 1)
 
   # Freezes the config after setup, turning it immutable
   freeze_config: bool = True

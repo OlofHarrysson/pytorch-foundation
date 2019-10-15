@@ -1,5 +1,8 @@
 import progressbar as pbar
 from pathlib import Path
+import random
+import numpy as np
+import torch
 
 
 def get_project_root():
@@ -11,6 +14,21 @@ def get_save_dir(config):
   ''' Returns directory where experiment will be saved '''
   project_dir = get_project_root()
   return project_dir / 'saved' / 'experiments' / config.start_time
+
+
+def seed_program(seed=0):
+  ''' Seed for reproducability '''
+  random.seed(seed)
+  np.random.seed(seed)
+  torch.manual_seed(seed)
+  torch.cuda.manual_seed_all(seed)
+  torch.backends.cudnn.deterministic = True
+
+
+def speed_up_cuda():
+  ''' Full throttle for gpu-stuff. Not deterministic '''
+  torch.backends.cudnn.deterministic = True
+  torch.backends.cudnn.benchmark = True
 
 
 class ProgressbarWrapper():

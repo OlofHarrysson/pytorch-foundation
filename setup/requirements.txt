@@ -2,5 +2,5 @@ imgaug
 progressbar2
 visdom
 gitpython
-fire
+anyfig
 pyjokes

@@ -3,32 +3,13 @@ import json
 from git import Repo
 from git.exc import InvalidGitRepositoryError
 
-from .config_utils import choose_config
 from .meta_utils import get_project_root, get_save_dir, seed_program
 
 
-def setup(default_config):
-  config_str = parse_args(default_config)
-  config = choose_config(config_str)
-  print(config)
-  print('\n{}\n'.format(config.save_comment))
+def setup(config):
   seed_program(config.seed)
-
   if config.save_experiment:
     save_experiment_info(config)
-  return config
-
-
-def parse_args(default_config):
-  p = argparse.ArgumentParser()
-
-  p.add_argument('--config',
-                 type=str,
-                 default=default_config,
-                 help='What config class to choose')
-
-  args, unknown = p.parse_known_args()
-  return args.config
 
 
 def save_experiment_info(config):
@@ -64,8 +45,3 @@ def save_git_info(save_dir, timestamp):
     for k, v in git_info.items():
       f.write('\n'.join([k, v]))
       f.write('\n' * 3)
-
-
-def save_config(config, save_dir):
-  with open(save_dir / 'config.json', 'w') as outfile:
-    json.dump(config.get_parameters(), outfile, indent=2)

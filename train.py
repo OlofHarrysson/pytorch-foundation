@@ -1,10 +1,12 @@
 import torch, math
+import anyfig
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from src.data.data import get_trainloader, get_valloader
 from src.models.model import get_model
 from src.logger import Logger
 from src.validator import Validator
+import src.config.config
 
 from src.utils.meta_utils import ProgressbarWrapper as Progressbar
 from src.utils.meta_utils import speed_up_cuda
@@ -65,5 +67,8 @@ def setup_train(config):
 
 
 if __name__ == '__main__':
-  config = setup_utils.setup(default_config='Cookie')
+  config = anyfig.setup_config(default_config='Cookie')
+  # print(config) # Uncomment to see config at start
+  print('\n{}\n'.format(config.save_comment))
+  setup_utils.setup(config)
   train(config)

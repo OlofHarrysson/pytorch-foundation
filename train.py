@@ -13,6 +13,8 @@ from src.utils.meta_utils import speed_up_cuda
 import src.utils.setup_utils as setup_utils
 
 
+
+
 def train(config):
   speed_up_cuda()
   train_loader, val_loader = setup_dataloaders(config)

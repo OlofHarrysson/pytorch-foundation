@@ -69,8 +69,8 @@ def setup_train(config):
 
 
 if __name__ == '__main__':
-  config = anyfig.setup_config(default_config='Cookie')
-  # print(config) # Uncomment to see config at start
+  config = anyfig.setup_config(default_config='Laptop')
+  print(config)  # Remove if you dont want to see config at start
   print('\n{}\n'.format(config.save_comment))
   setup_utils.setup(config)
   train(config)

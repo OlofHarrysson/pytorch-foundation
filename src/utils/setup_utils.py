@@ -1,5 +1,6 @@
 import argparse
 import json
+import anyfig
 from git import Repo
 from git.exc import InvalidGitRepositoryError
 
@@ -17,7 +18,7 @@ def save_experiment_info(config):
   save_dir = get_save_dir(config)
   save_dir.mkdir(exist_ok=True, parents=True)
   save_git_info(save_dir, config.start_time)
-  save_config(config, save_dir)
+  anyfig.save_config(config, save_dir / 'config.cfg')
 
 
 def save_git_info(save_dir, timestamp):

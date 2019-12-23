@@ -1,5 +1,6 @@
 import anyfig
-import pyjokes, random
+import pyjokes
+import random
 from datetime import datetime as dtime
 
 
@@ -7,8 +8,7 @@ class MiscConfig(anyfig.MasterConfig):
   # ~~~~~~~~~~~~~~ General Parameters ~~~~~~~~~~~~~~
   def __init__(self):
     super().__init__()
-
-    # Saves config & git diffs
+    # Saves config & git info
     self.save_experiment: bool = False
 
     # An optional comment to differentiate this run from others
@@ -18,7 +18,7 @@ class MiscConfig(anyfig.MasterConfig):
     self.start_time: str = dtime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
     # Seed to create reproducable training results
-    self.seed: int = random.randint(0, 2**32 - 1)
+    self.seed: int = random.randint(0, 2**31)
 
     # Decides if logger should be active
     self.log_data: bool = False
@@ -51,7 +51,7 @@ class TrainingConfig(anyfig.MasterConfig):
 
 
 @anyfig.config_class
-class Cookie(TrainingConfig, MiscConfig):
+class Laptop(TrainingConfig, MiscConfig):
   def __init__(self):
     super().__init__()
     ''' Change default parameters here. Like this
@@ -60,3 +60,10 @@ class Cookie(TrainingConfig, MiscConfig):
      <_#_#_#_#_#_#_#_#_#_#_#_#_____/   \
     '''
     self.use_gpu = False
+
+
+@anyfig.config_class
+class MegaMachine(TrainingConfig, MiscConfig):
+  def __init__(self):
+    super().__init__()
+    self.batch_size = self.batch_size * 4

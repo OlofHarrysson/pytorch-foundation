@@ -3,6 +3,7 @@ from pathlib import Path
 import random
 import numpy as np
 import torch
+from anyfig import cfg
 
 
 def get_project_root():
@@ -10,10 +11,10 @@ def get_project_root():
   return Path(__file__).parent.parent.parent
 
 
-def get_save_dir(config):
+def get_save_dir():
   ''' Returns directory where experiment will be saved '''
   project_dir = get_project_root()
-  return project_dir / 'saved' / 'experiments' / config.start_time
+  return project_dir / 'saved' / 'experiments' / cfg().misc.start_time
 
 
 def seed_program(seed=0):
@@ -27,7 +28,7 @@ def seed_program(seed=0):
 
 def speed_up_cuda():
   ''' Full throttle for gpu-stuff. Not deterministic '''
-  torch.backends.cudnn.deterministic = True
+  torch.backends.cudnn.deterministic = False
   torch.backends.cudnn.benchmark = True
 
 

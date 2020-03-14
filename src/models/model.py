@@ -14,7 +14,6 @@ class MyModel(nn.Module):
   def __init__(self, config):
     super().__init__()
     self.device = 'cuda' if config.use_gpu else 'cpu'
-    self.loss_fn = nn.CrossEntropyLoss()
 
     self.backbone = models.resnet18(pretrained=config.pretrained)
     n_features = self.backbone.fc.in_features
@@ -28,22 +27,16 @@ class MyModel(nn.Module):
     with torch.no_grad():
       return self(inputs)
 
-  def calc_loss(self, outputs, labels, accuracy=False):
-    labels = labels.to(self.device)
-
-    if accuracy:
-      _, preds = torch.max(outputs, 1)
-      accuracy = torch.sum(preds == labels, dtype=float) / len(preds)
-      return self.loss_fn(outputs, labels), accuracy
-    return self.loss_fn(outputs, labels)
-
   def save(self, path):
-    save_dir = Path(path).parent
-    save_dir.mkdir(exist_ok=True, parents=True)
-    print("Saving Weights @ " + path)
+    path = Path(path)
+    err_msg = f"Expected path that ends with '.pt' or '.pth' but was '{path}'"
+    assert path.suffix in ['.pt', '.pth'], err_msg
+    path.parent.mkdir(exist_ok=True)
+    print("Saving Weights @ " + str(path))
     torch.save(self.state_dict(), path)
 
   def load(self, path):
     print('Loading weights from {}'.format(path))
     weights = torch.load(path, map_location='cpu')
     self.load_state_dict(weights, strict=False)
+    self.to(self.device)

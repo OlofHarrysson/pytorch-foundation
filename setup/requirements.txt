@@ -3,4 +3,4 @@ progressbar2
 visdom
 gitpython
 pyjokes
-https://github.com/OlofHarrysson/anyfig/archive/master.zip
+anyfig

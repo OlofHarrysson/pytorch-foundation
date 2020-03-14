@@ -1,57 +1,67 @@
 import anyfig
 import pyjokes
 import random
-from datetime import datetime as dtime
+from datetime import datetime
 
 
-class MiscConfig(anyfig.MasterConfig):
+@anyfig.config_class
+class MiscConfig():
   # ~~~~~~~~~~~~~~ General Parameters ~~~~~~~~~~~~~~
   def __init__(self):
     super().__init__()
-    # Saves config & git info
+
+    # Creates directory. Saves config & git info
     self.save_experiment: bool = False
 
     # An optional comment to differentiate this run from others
     self.save_comment: str = pyjokes.get_joke()
 
     # Start time to keep track of when the experiment was run
-    self.start_time: str = dtime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    self.start_time: str = datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
 
-    # Seed to create reproducable training results
+    # Seed for reproducability
     self.seed: int = random.randint(0, 2**31)
 
     # Decides if logger should be active
     self.log_data: bool = False
 
 
-class TrainingConfig(anyfig.MasterConfig):
+@anyfig.config_class
+class TrainingConfig():
+  # ~~~~~~~~~~~~~~ Training Parameters ~~~~~~~~~~~~~~
   def __init__(self):
-    super().__init__()
+
     # Use GPU. Set to False to only use CPU
     self.use_gpu: bool = True
 
-    # Threads to use in data loading
+    # Number of threads to use in data loading
     self.num_workers: int = 0
 
-    # Batch size going into the network
-    self.batch_size: int = 32
+    # Number of update steps to train
+    self.optim_steps: int = 10000
 
-    # Using a pretrained network
-    self.pretrained: bool = False
+    # Number of optimization steps between validation
+    self.validation_freq: int = 500
 
     # Start and end learning rate for the scheduler
     self.start_lr: float = 1e-3
     self.end_lr: float = 1e-4
 
-    # For how many steps to train
-    self.optim_steps: int = 10000
+    # Batch size going into the network
+    self.batch_size: int = 32
 
-    # How many optimization steps before validation
-    self.validation_freq: int = 100
+    # Size for image that is fed into the network
+    self.input_size = 64
+
+    # Use a pretrained network
+    self.pretrained: bool = False
+
+    # Misc configs
+    self.misc = MiscConfig()
 
 
 @anyfig.config_class
-class Laptop(TrainingConfig, MiscConfig):
+class TrainLaptop(TrainingConfig):
   def __init__(self):
     super().__init__()
     ''' Change default parameters here. Like this
@@ -60,10 +70,12 @@ class Laptop(TrainingConfig, MiscConfig):
      <_#_#_#_#_#_#_#_#_#_#_#_#_____/   \
     '''
     self.use_gpu = False
+    self.misc.log_data = True
+    # self.misc.save_experiment: bool = True
 
 
 @anyfig.config_class
-class MegaMachine(TrainingConfig, MiscConfig):
+class TrainMegaMachine(TrainingConfig):
   def __init__(self):
     super().__init__()
     self.batch_size = self.batch_size * 4

@@ -1,5 +1,3 @@
-import argparse
-import json
 import anyfig
 from git import Repo
 from git.exc import InvalidGitRepositoryError
@@ -15,7 +13,7 @@ def setup(config):
 
 def save_experiment_info(config):
   ''' Saves experiment info in a timestamped directory '''
-  save_dir = get_save_dir(config)
+  save_dir = get_save_dir()
   save_dir.mkdir(exist_ok=True, parents=True)
   save_git_info(save_dir, config.start_time)
   anyfig.save_config(config, save_dir / 'config.cfg')
@@ -31,7 +29,7 @@ def save_git_info(save_dir, timestamp):
     hash_ = repo.head.object.hexsha
     worktree = repo.head.commit.tree
     diff = repo.git.diff(worktree)
-  except InvalidGitRepositoryError as e:
+  except InvalidGitRepositoryError:
     print("\nProject isn't tracked by git. Skipping saving git info\n")
     return
 

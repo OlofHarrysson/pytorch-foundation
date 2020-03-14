@@ -1,76 +1,76 @@
-import torch, math
+import torch
+import torch.nn as nn
+import math
 import anyfig
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
-from src.data.data import get_trainloader, get_valloader
+from src.data.data import setup_dataloaders
 from src.models.model import get_model
 from src.logger import Logger
-from src.validator import Validator
-import src.config.config
+from src.evaluation.validator import Validator
+from src.evaluation.metrics import setup_metrics
+from settings import configs
 
 from src.utils.meta_utils import ProgressbarWrapper as Progressbar
 from src.utils.meta_utils import speed_up_cuda
 import src.utils.setup_utils as setup_utils
 
 
-
-
 def train(config):
   speed_up_cuda()
-  train_loader, val_loader = setup_dataloaders(config)
-  model, optimizer, lr_scheduler, logger, validator = setup_train(config)
+  dataloaders = setup_dataloaders()
+  metrics = setup_metrics()
+
+  logger = Logger()
+  model = get_model(config)
+  validator = Validator(config)
+  optimizer = torch.optim.Adam(model.parameters(), lr=config.start_lr)
+  lr_scheduler = CosineAnnealingLR(optimizer,
+                                   T_max=config.optim_steps,
+                                   eta_min=config.end_lr)
+  loss_fn = nn.CrossEntropyLoss()
 
   # Init progressbar
-  n_batches = len(train_loader)
+  n_batches = len(dataloaders.train)
   n_epochs = math.ceil(config.optim_steps / n_batches)
-  pbar = Progressbar(n_epochs, n_batches)
+  progressbar = Progressbar(n_epochs, n_batches)
 
   # Init variables
   optim_steps = 0
   val_freq = config.validation_freq
 
   # Training loop
-  for epoch in pbar(range(1, n_epochs + 1)):
-    for batch_i, data in enumerate(train_loader, 1):
-      pbar.update(epoch, batch_i)
+  for epoch in progressbar(range(1, n_epochs + 1)):
+    for batch_i, data in enumerate(dataloaders.train, 1):
+      progressbar.update(epoch, batch_i)
+      inputs, labels = data
+      labels = labels.to(model.device)
 
       # Validation
       # if optim_steps % val_freq == 0:
-      #   validator.validate(model, val_loader, optim_steps)
+      #   validator.validate(model, dataloaders.val, optim_steps)
 
-      inputs, labels = data
+      # Forward pass
+      optimizer.zero_grad()
       outputs = model(inputs)
-      loss, accuracy = model.calc_loss(outputs, labels, accuracy=True)
-      print(accuracy)
+      loss = loss_fn(outputs, labels)
+
+      # Backward pass
       loss.backward()
       optimizer.step()
-      optimizer.zero_grad()
+      optim_steps += 1
 
       # Decrease learning rate
       lr_scheduler.step()
 
-
-def setup_dataloaders(config):
-  train_loader = get_trainloader(config)
-  val_loader = get_valloader(config)
-  return train_loader, val_loader
-
-
-def setup_train(config):
-  model = get_model(config)
-  optimizer = torch.optim.Adam(model.parameters(), lr=config.start_lr)
-  lr_scheduler = CosineAnnealingLR(optimizer,
-                                   T_max=config.optim_steps,
-                                   eta_min=config.end_lr)
-  logger = Logger(config)
-  validator = Validator(config)
-
-  return model, optimizer, lr_scheduler, logger, validator
+      # Log
+      accuracy = metrics['accuracy'](outputs, labels)
+      logger.log_accuracy(accuracy.item(), optim_steps)
 
 
 if __name__ == '__main__':
-  config = anyfig.setup_config(default_config='Laptop')
+  config = anyfig.setup_config(default_config=configs.TrainLaptop)
   print(config)  # Remove if you dont want to see config at start
-  print('\n{}\n'.format(config.save_comment))
-  setup_utils.setup(config)
+  print('\n{}\n'.format(config.misc.save_comment))
+  setup_utils.setup(config.misc)
   train(config)

@@ -2,7 +2,7 @@ from torchvision import transforms
 import imgaug as ia
 import imgaug.augmenters as iaa
 import numpy as np
-from PIL import Image
+from anyfig import cfg
 
 
 def get_train_transforms():
@@ -20,8 +20,8 @@ def get_val_transforms():
 
 class Transformer():
   def __init__(self):
-    self.seq = iaa.Resize({"height": 64, "width": 64})
+    im_size = cfg().input_size
+    self.seq = iaa.Resize({"height": im_size, "width": im_size})
 
   def __call__(self, im):
-    augmented_im = self.seq.augment_image(np.array(im))
-    return Image.fromarray(augmented_im)
+    return self.seq.augment_image(np.array(im))

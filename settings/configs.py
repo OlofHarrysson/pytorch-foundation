@@ -31,8 +31,8 @@ class TrainingConfig():
   # ~~~~~~~~~~~~~~ Training Parameters ~~~~~~~~~~~~~~
   def __init__(self):
 
-    # Use GPU. Set to False to only use CPU
-    self.use_gpu: bool = True
+    # The GPU device to use. Set the value to -1 to not use the GPU
+    self.gpu_idx: int = 0
 
     # Number of threads to use in data loading
     self.num_workers: int = 0

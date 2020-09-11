@@ -69,7 +69,7 @@ def train(config):
 
 
 if __name__ == '__main__':
-  config = anyfig.setup_config(default_config=configs.TrainLaptop)
+  config = anyfig.init_config(default_config=configs.TrainLaptop)
   print(config)  # Remove if you dont want to see config at start
   print('\n{}\n'.format(config.misc.save_comment))
   setup_utils.setup(config.misc)

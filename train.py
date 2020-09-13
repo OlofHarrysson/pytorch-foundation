@@ -1,7 +1,9 @@
+import math
+
+import anyfig
 import torch
 import torch.nn as nn
-import math
-import anyfig
+from torch.cuda.amp import GradScaler, autocast
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from src.data.data import setup_dataloaders
@@ -10,7 +12,6 @@ from src.logger import Logger
 from src.evaluation.validator import Validator
 from src.evaluation.metrics import setup_metrics
 from settings import configs
-
 from src.utils.meta_utils import ProgressbarWrapper as Progressbar
 from src.utils.meta_utils import speed_up_cuda
 import src.utils.setup_utils as setup_utils
@@ -29,6 +30,8 @@ def train(config):
                                    T_max=config.optim_steps,
                                    eta_min=config.end_lr)
   loss_fn = nn.CrossEntropyLoss()
+  mixed_precision = config.mixed_precision and model.device != 'cpu'
+  scaler = GradScaler(enabled=mixed_precision)
 
   # Init progressbar
   n_batches = len(dataloaders.train)
@@ -51,13 +54,15 @@ def train(config):
       #   validator.validate(model, dataloaders.val, optim_steps)
 
       # Forward pass
-      optimizer.zero_grad()
-      outputs = model(inputs)
-      loss = loss_fn(outputs, labels)
+      with autocast(mixed_precision):
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        loss = loss_fn(outputs, labels)
 
       # Backward pass
-      loss.backward()
-      optimizer.step()
+      scaler.scale(loss).backward()
+      scaler.step(optimizer)
+      scaler.update()
       optim_steps += 1
 
       # Decrease learning rate

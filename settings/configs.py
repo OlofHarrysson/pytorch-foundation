@@ -32,7 +32,10 @@ class TrainingConfig():
   def __init__(self):
 
     # The GPU device to use. Set the value to -1 to not use the GPU
-    self.gpu_idx: int = 0
+    self.gpu: int = 0
+
+    # Runs the computations with mixed precision. Only works with GPUs enabled
+    self.mixed_precision = True
 
     # Number of threads to use in data loading
     self.num_workers: int = 0

@@ -13,8 +13,7 @@ def get_model(config):
 class MyModel(nn.Module):
   def __init__(self, config):
     super().__init__()
-    self.device = 'cpu' if config.gpu_idx < 0 else torch.device(
-      'cuda', config.gpu_idx)
+    self.device = 'cpu' if config.gpu < 0 else torch.device('cuda', config.gpu)
 
     self.backbone = models.resnet18(pretrained=config.pretrained)
     n_features = self.backbone.fc.in_features

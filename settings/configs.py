@@ -32,7 +32,7 @@ class TrainingConfig():
   def __init__(self):
 
     # The GPU device to use. Set the value to -1 to not use the GPU
-    self.gpu: int = -1
+    self.gpu: int = 0
 
     # Runs the computations with mixed precision. Only works with GPUs enabled
     self.mixed_precision = True
@@ -72,9 +72,7 @@ class TrainLaptop(TrainingConfig):
       ________________________/ O  \___/  <--- Python <3
      <_#_#_#_#_#_#_#_#_#_#_#_#_____/   \
     '''
-    self.use_gpu = False
-    self.misc.log_data = True
-    # self.misc.save_experiment: bool = True
+    self.gpu: int = -1
 
 
 @anyfig.config_class

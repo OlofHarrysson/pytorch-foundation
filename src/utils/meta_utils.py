@@ -3,7 +3,7 @@ from pathlib import Path
 import random
 import numpy as np
 import torch
-from anyfig import cfg
+from anyfig import get_config
 
 
 def get_project_root():
@@ -14,7 +14,7 @@ def get_project_root():
 def get_save_dir():
   ''' Returns directory where experiment will be saved '''
   project_dir = get_project_root()
-  return project_dir / 'saved' / 'experiments' / cfg().misc.start_time
+  return project_dir / 'saved' / 'experiments' / get_config().misc.start_time
 
 
 def seed_program(seed=0):
@@ -39,15 +39,17 @@ class ProgressbarWrapper():
       dict(epoch=0, n_epochs=n_epochs, batch=0, n_batches=n_batches),
     )
 
-    self.bar = pbar.ProgressBar(widgets=[
-      self.text,
-      '    ',
-      pbar.Timer(),
-      '    ',
-      pbar.AdaptiveETA(),
-      '',
-    ],
-                                redirect_stdout=True)
+    self.bar = pbar.ProgressBar(
+      widgets=[
+        self.text,
+        '    ',
+        pbar.Timer(),
+        '    ',
+        pbar.AdaptiveETA(),
+        '',
+      ],
+      redirect_stdout=True,
+    )
 
     self.bar.start()
 

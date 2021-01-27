@@ -1,6 +1,6 @@
 import visdom
 import functools
-from anyfig import cfg
+from anyfig import get_config
 from .utils import plotly_plots as plts
 
 
@@ -13,7 +13,7 @@ def log_if_active(func):
   ''' Decorator which only calls logging function if logger is active '''
   @functools.wraps(func)
   def wrapper(self, *args, **kwargs):
-    if cfg().misc.log_data:
+    if get_config().misc.log_data:
       return func(self, *args, **kwargs)
 
   return wrapper
@@ -21,12 +21,14 @@ def log_if_active(func):
 
 class Logger():
   def __init__(self):
-    if cfg().misc.log_data:
+    if get_config().misc.log_data:
       try:
         self.vis = visdom.Visdom()
         clear_old_data(self.vis)
       except Exception as e:
-        err_msg = "Couldn't connect to Visdom. Make sure to have a Visdom server running or turn of logging in the config"
+        err_msg = (
+          "Couldn't connect to Visdom. Make sure to have a Visdom server running or turn of "
+          "logging in the config")
         raise ConnectionError(err_msg) from e
 
   @log_if_active

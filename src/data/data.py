@@ -1,7 +1,7 @@
 from torchvision import datasets
 from torch.utils.data import DataLoader
 from collections import namedtuple
-from anyfig import cfg
+from anyfig import get_config
 
 from ..transforms import get_train_transforms, get_val_transforms
 from ..utils.meta_utils import get_project_root
@@ -17,8 +17,8 @@ def setup_trainloader():
   dataset_dir = get_project_root() / 'datasets'
   dataset = MyCifar10(dataset_dir, transforms, train=True)
   return DataLoader(dataset,
-                    batch_size=cfg().batch_size,
-                    num_workers=cfg().num_workers,
+                    batch_size=get_config().batch_size,
+                    num_workers=get_config().num_workers,
                     shuffle=True)
 
 
@@ -27,8 +27,8 @@ def setup_valloader():
   dataset_dir = get_project_root() / 'datasets'
   dataset = MyCifar10(dataset_dir, transforms, train=False)
   return DataLoader(dataset,
-                    batch_size=cfg().batch_size,
-                    num_workers=cfg().num_workers)
+                    batch_size=get_config().batch_size,
+                    num_workers=get_config().num_workers)
 
 
 class MyCifar10(datasets.CIFAR10):

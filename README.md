@@ -1,6 +1,3 @@
-# pytorch-foundation
-A barebone project structure for pytorch projects that can be built upon. To avoid having to rewrite all the boilerplate code for every new project
+# audiomnist
 
-
-TODOS:
-Add mixed precision training
+dataset of audiobooks https://www.openslr.org/12/

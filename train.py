@@ -1,81 +1,54 @@
-import math
+from pathlib import Path
 
 import anyfig
-import torch
-import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
-from torch.optim.lr_scheduler import CosineAnnealingLR
+import pytorch_lightning as pl
+from pytorch_lightning.loggers import TensorBoardLogger
 
-from src.data.data import setup_dataloaders
-from src.models.model import get_model
-from src.logger import Logger
-from src.evaluation.validator import Validator
-from src.evaluation.metrics import setup_metrics
 from settings import configs
-from src.utils.meta_utils import ProgressbarWrapper as Progressbar
-from src.utils.meta_utils import speed_up_cuda
-import src.utils.setup_utils as setup_utils
+from src.data.data import setup_dataloaders
+from src.evaluation.metrics import setup_metrics
+from src.logger import Logger
+from src.models.model import setup_model
+from src.utils import setup_utils
 
 
 def train(config):
-  speed_up_cuda()
-  dataloaders = setup_dataloaders()
-  metrics = setup_metrics()
+    dataloaders = setup_dataloaders()
+    # logger = Logger()
 
-  logger = Logger()
-  model = get_model(config)
-  validator = Validator(config)
-  optimizer = torch.optim.Adam(model.parameters(), lr=config.start_lr)
-  lr_scheduler = CosineAnnealingLR(optimizer,
-                                   T_max=config.optim_steps,
-                                   eta_min=config.end_lr)
-  loss_fn = nn.CrossEntropyLoss()
-  mixed_precision = config.mixed_precision and model.device != 'cpu'
-  scaler = GradScaler(enabled=mixed_precision)
+    # TODO check on GPU
+    mixed_precision = config.mixed_precision and config.gpus is not None
+    precision = 16 if mixed_precision else 32
+    fast_dev_run = 10 if config.fast_dev_run else False
+    logger = TensorBoardLogger(
+        save_dir=setup_utils.get_project_root() / "output" / "trainings",
+        name=config.misc.start_time,
+        version="logs",
+        default_hp_metric=False,
+    )
+    exp_dir = Path(logger.log_dir).parent
+    setup_utils.setup(config, exp_dir)
 
-  # Init progressbar
-  n_batches = len(dataloaders.train)
-  n_epochs = math.ceil(config.optim_steps / n_batches)
-  progressbar = Progressbar(n_epochs, n_batches)
-
-  # Init variables
-  optim_steps = 0
-  val_freq = config.validation_freq
-
-  # Training loop
-  for epoch in progressbar(range(1, n_epochs + 1)):
-    for batch_i, data in enumerate(dataloaders.train, 1):
-      progressbar.update(epoch, batch_i)
-      inputs, labels = data
-      labels = labels.to(model.device)
-
-      # Validation
-      # if optim_steps % val_freq == 0:
-      #   validator.validate(model, dataloaders.val, optim_steps)
-
-      # Forward pass
-      with autocast(mixed_precision):
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = loss_fn(outputs, labels)
-
-      # Backward pass
-      scaler.scale(loss).backward()
-      scaler.step(optimizer)
-      scaler.update()
-      optim_steps += 1
-
-      # Decrease learning rate
-      lr_scheduler.step()
-
-      # Log
-      accuracy = metrics['accuracy'](outputs, labels)
-      logger.log_accuracy(accuracy.item(), optim_steps)
+    trainer = pl.Trainer(
+        default_root_dir=exp_dir,
+        precision=precision,
+        fast_dev_run=fast_dev_run,
+        logger=logger,
+    )
+    model = setup_model(config)
+    trainer.fit(
+        model,
+        train_dataloaders=dataloaders.train,
+        val_dataloaders=dataloaders.val,
+    )
 
 
-if __name__ == '__main__':
-  config = anyfig.init_config(default_config=configs.TrainLaptop)
-  print(config)  # Remove if you dont want to see config at start
-  print('\n{}\n'.format(config.misc.save_comment))
-  setup_utils.setup(config.misc)
-  train(config)
+def main():
+    config = anyfig.init_config(default_config=configs.TrainLaptop)
+    print(config)  # Remove if you dont want to see config at start
+    print("\n{}\n".format(config.misc.save_comment))
+    train(config)
+
+
+if __name__ == "__main__":
+    main()

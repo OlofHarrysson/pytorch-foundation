@@ -1,42 +1,58 @@
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+import torchmetrics
 import torchvision.models as models
-from pathlib import Path
+from anyfig import global_cfg
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
 
-def get_model(config):
-  model = MyModel(config)
-  model = model.to(model.device)
-  return model
+def setup_model(config):
+    return MyModel(config)
 
 
-class MyModel(nn.Module):
-  def __init__(self, config):
-    super().__init__()
-    self.device = 'cpu' if config.gpu < 0 else torch.device('cuda', config.gpu)
+class MyModel(pl.LightningModule):
+    def __init__(self, config):
+        super().__init__()
+        self.backbone = models.resnet18(pretrained=config.pretrained)
+        n_features = self.backbone.fc.in_features
+        self.backbone.fc = nn.Linear(n_features, 10)
+        self.loss_fn = nn.CrossEntropyLoss()
 
-    self.backbone = models.resnet18(pretrained=config.pretrained)
-    n_features = self.backbone.fc.in_features
-    self.backbone.fc = nn.Linear(n_features, 10)
+        self.train_acc = torchmetrics.Accuracy()
+        self.valid_acc = torchmetrics.Accuracy()
 
-  def forward(self, inputs):
-    inputs = inputs.to(self.device)
-    return self.backbone(inputs)
+    def forward(self, inputs):
+        return self.backbone(inputs)
 
-  def predict(self, inputs):
-    with torch.no_grad():
-      return self(inputs)
+    def predict(self, inputs):
+        with torch.no_grad():
+            return self(inputs)
 
-  def save(self, path):
-    path = Path(path)
-    err_msg = f"Expected path that ends with '.pt' or '.pth' but was '{path}'"
-    assert path.suffix in ['.pt', '.pth'], err_msg
-    path.parent.mkdir(exist_ok=True)
-    print("Saving Weights @ " + str(path))
-    torch.save(self.state_dict(), path)
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        preds = self(x)
+        loss = self.loss_fn(preds, y)
+        self.log("training/loss", loss)
 
-  def load(self, path):
-    print('Loading weights from {}'.format(path))
-    weights = torch.load(path, map_location='cpu')
-    self.load_state_dict(weights, strict=False)
-    self.to(self.device)
+        self.train_acc(preds, y)
+        self.log("training/accuracy", self.train_acc, on_step=True, on_epoch=False)
+
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        preds = self(x)
+        self.valid_acc(preds, y)
+        self.log("validation/accuracy", self.valid_acc, on_step=False, on_epoch=True)
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=global_cfg.start_lr)
+        lr_scheduler = CosineAnnealingLR(
+            optimizer, T_max=global_cfg.optim_steps, eta_min=global_cfg.end_lr
+        )
+        lr_scheduler_config = {
+            "scheduler": lr_scheduler,
+            "interval": "step",
+        }
+        return dict(optimizer=optimizer, lr_scheduler_config=lr_scheduler_config)

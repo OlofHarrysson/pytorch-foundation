@@ -14,6 +14,7 @@ def setup_model(config):
 class MyModel(pl.LightningModule):
     def __init__(self, config):
         super().__init__()
+        self.learning_rate = global_cfg.start_lr
         self.backbone = models.resnet18(pretrained=config.pretrained)
         n_features = self.backbone.fc.in_features
         self.backbone.fc = nn.Linear(n_features, 10)
@@ -24,10 +25,6 @@ class MyModel(pl.LightningModule):
 
     def forward(self, inputs):
         return self.backbone(inputs)
-
-    def predict(self, inputs):
-        with torch.no_grad():
-            return self(inputs)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -47,7 +44,7 @@ class MyModel(pl.LightningModule):
         self.log("validation/accuracy", self.valid_acc, on_step=False, on_epoch=True)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=global_cfg.start_lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         lr_scheduler = CosineAnnealingLR(
             optimizer, T_max=global_cfg.optim_steps, eta_min=global_cfg.end_lr
         )

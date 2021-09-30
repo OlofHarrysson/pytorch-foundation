@@ -77,10 +77,10 @@ class TrainLaptop(TrainingConfig):
         <_#_#_#_#_#_#_#_#_#_#_#_#_____/    \
         """
         # self.fast_dev_run: bool = True
+        self.misc.save_experiment: bool = False
         self.gpus: int = None
-        self.misc.save_experiment: bool = True
         # self.num_workers = 4
-        self.batch_size = 4
+        # self.batch_size = 4
 
 
 @anyfig.config_class

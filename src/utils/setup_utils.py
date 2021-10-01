@@ -5,7 +5,7 @@ from git import Repo
 from git.exc import InvalidGitRepositoryError
 
 
-def setup(config, save_dir):
+def setup_experiment(config, save_dir):
     if config.misc.save_experiment:
         save_experiment_info(config, save_dir)
 

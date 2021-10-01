@@ -1,22 +1,22 @@
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-import torchmetrics
 import torchvision.models as models
 from anyfig import global_cfg
+from src.evaluation.metrics import setup_metrics
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 
-def setup_model(config, metrics):
-    return MyModel(config, metrics)
+def setup_model():
+    return MyModel()
 
 
 class MyModel(pl.LightningModule):
-    def __init__(self, config, metrics):
+    def __init__(self):
         super().__init__()
-        self.metrics = metrics
+        self.metrics = setup_metrics()
         self.learning_rate = global_cfg.start_lr
-        self.backbone = models.resnet18(pretrained=config.pretrained)
+        self.backbone = models.resnet18(pretrained=global_cfg.pretrained)
         n_features = self.backbone.fc.in_features
         self.backbone.fc = nn.Linear(n_features, 10)
         self.loss_fn = nn.CrossEntropyLoss()

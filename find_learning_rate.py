@@ -1,7 +1,20 @@
 import sys
 
+import anyfig
+import pytorch_lightning as pl
 
-def find_best_learning_rate(trainer, model, dataloaders):
+from settings import configs
+from src.data.data import setup_dataloaders
+from src.models.model import setup_model
+
+
+def find_best_learning_rate():
+    config = anyfig.init_config(default_config=configs.TrainLaptop)
+    print(config)  # Remove if you dont want to see config at start
+
+    model = setup_model()
+    dataloaders = setup_dataloaders()
+    trainer = pl.Trainer(gpus=config.gpus)
     lr_finder = trainer.tuner.lr_find(model, dataloaders.train)
     if lr_finder:
         fig = lr_finder.plot(suggest=True)
@@ -12,6 +25,4 @@ def find_best_learning_rate(trainer, model, dataloaders):
 
 
 if __name__ == "__main__":
-    from train import main
-
-    main(find_best_lr=True)
+    find_best_learning_rate()

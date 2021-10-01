@@ -81,10 +81,3 @@ class TrainLaptop(TrainingConfig):
         self.gpus: int = None
         # self.num_workers = 4
         self.batch_size = 8
-
-
-@anyfig.config_class
-class TrainMegaMachine(TrainingConfig):
-    def __init__(self):
-        super().__init__()
-        self.batch_size = self.batch_size * 4

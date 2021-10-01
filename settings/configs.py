@@ -58,7 +58,7 @@ class TrainingConfig:
         self.batch_size: int = 32
 
         # Size for image that is fed into the network
-        self.input_size = 64
+        self.input_size = 32
 
         # Use a pretrained network
         self.pretrained: bool = False
@@ -80,7 +80,7 @@ class TrainLaptop(TrainingConfig):
         self.misc.save_experiment: bool = False
         self.gpus: int = None
         # self.num_workers = 4
-        # self.batch_size = 4
+        self.batch_size = 8
 
 
 @anyfig.config_class

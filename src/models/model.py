@@ -7,21 +7,19 @@ from anyfig import global_cfg
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 
-def setup_model(config):
-    return MyModel(config)
+def setup_model(config, metrics):
+    return MyModel(config, metrics)
 
 
 class MyModel(pl.LightningModule):
-    def __init__(self, config):
+    def __init__(self, config, metrics):
         super().__init__()
+        self.metrics = metrics
         self.learning_rate = global_cfg.start_lr
         self.backbone = models.resnet18(pretrained=config.pretrained)
         n_features = self.backbone.fc.in_features
         self.backbone.fc = nn.Linear(n_features, 10)
         self.loss_fn = nn.CrossEntropyLoss()
-
-        self.train_acc = torchmetrics.Accuracy()
-        self.valid_acc = torchmetrics.Accuracy()
 
     def forward(self, inputs):
         return self.backbone(inputs)
@@ -30,18 +28,21 @@ class MyModel(pl.LightningModule):
         x, y = batch
         preds = self(x)
         loss = self.loss_fn(preds, y)
-        self.log("training/loss", loss)
+        self.log("training/loss", loss, on_step=True)
 
-        self.train_acc(preds, y)
-        self.log("training/accuracy", self.train_acc, on_step=True, on_epoch=False)
+        metric_scores = self.metrics.train(preds, y)
+        self.log_dict(metric_scores, on_step=True)
 
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         preds = self(x)
-        self.valid_acc(preds, y)
-        self.log("validation/accuracy", self.valid_acc, on_step=False, on_epoch=True)
+        loss = self.loss_fn(preds, y)
+        self.log("validation/loss", loss, on_epoch=True)
+
+        metric_scores = self.metrics.val(preds, y)
+        self.log_dict(metric_scores, on_epoch=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)

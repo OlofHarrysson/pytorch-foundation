@@ -41,8 +41,8 @@ class MyCifar10(datasets.CIFAR10):
         super().__init__(path, train, download=True)
         self.transforms = transforms
 
-    # def __len__(self):
-    #     return 300  # TODO
+    def __len__(self):
+        return 700  # TODO
 
     def __getitem__(self, index):
         im, label = super().__getitem__(index)

@@ -7,12 +7,13 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from find_learning_rate import find_best_learning_rate
 from settings import configs
 from src.data.data import setup_dataloaders
+from src.evaluation.metrics import setup_metrics
 from src.models.model import setup_model
 from src.utils import setup_utils
 
 
 def train(config, find_best_lr):
-    # TODO check on GPU
+    # TODO check on GPU machine
     mixed_precision = config.mixed_precision and config.gpus is not None
     precision = 16 if mixed_precision else 32
     fast_dev_run = 10 if config.fast_dev_run else False
@@ -32,7 +33,8 @@ def train(config, find_best_lr):
         logger=logger,
     )
 
-    model = setup_model(config)
+    metrics = setup_metrics()
+    model = setup_model(config, metrics)
     dataloaders = setup_dataloaders()
     if find_best_lr:
         find_best_learning_rate(trainer, model, dataloaders)
